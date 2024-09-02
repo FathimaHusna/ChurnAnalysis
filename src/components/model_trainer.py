@@ -24,13 +24,33 @@ class ModelTrainer:
             logging.info("Balancing the training data")
             X_train_balanced, y_train_balanced = balance_data(X_train, y_train)
 
-            logging.info("Training the models and evaluating their performance")
+            logging.info("Defining the models and hyperparameter grids")
             models = {
                 "Random Forest": RandomForestClassifier(),
                 "Decision Tree": DecisionTreeClassifier()
             }
 
-            model_report = evaluate_models(X_train_balanced, y_train_balanced, X_test, y_test, models)
+            param_grids = {
+                "Random Forest": {
+                    'n_estimators': [100, 200, 300],
+                    'max_depth': [None, 10, 20, 30],
+                    'min_samples_split': [2, 5, 10],
+                    'min_samples_leaf': [1, 2, 4],
+                    'bootstrap': [True, False]
+                },
+                "Decision Tree": {
+                    'max_depth': [None, 10, 20, 30],
+                    'min_samples_split': [2, 5, 10],
+                    'min_samples_leaf': [1, 2, 4],
+                    'criterion': ['gini', 'entropy']
+                }
+            }
+
+            logging.info("Evaluating models with hyperparameter tuning")
+            model_report = evaluate_models(
+                X_train_balanced, y_train_balanced, X_test, y_test, models, param_grids
+            )
+            
             best_model_name = max(model_report, key=model_report.get)
             best_model = models[best_model_name]
 
